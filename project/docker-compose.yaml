@@ -1,0 +1,77 @@
+version: '3'
+
+services:
+ broker-service:
+  build:
+   #we need to specify context since docker-compose file is not at the same
+   #level as the service folder.
+   context: ./../broker-service
+   dockerfile: ./../broker-service/broker-service.dockerfile
+
+  #Always restart if the container dies.
+  restart: always
+  ports:
+   #map port 8080 on my localhost to port 80 on the docker image.
+   - "8080:80"
+  deploy:
+   # Define 1 replica for now.
+   mode: replicated
+   replicas: 1
+
+ authentication-service:
+  build:
+   context: ./../authentication-service
+   dockerfile: ./../authentication-service/authentication-service.dockerfile
+  restart: always
+  ports:
+   - "8081:80"
+  deploy:
+   mode: replicated
+   replicas: 1
+  environment:
+   # NOTE: host has to match the name we gave to the postgres service's name define bellow 
+   DSN: "host=postgres port=5432 user=postgres password=password dbname=users sslmode=disable timezone=UTC connect_timeout=5"
+
+ logger-service:
+  build:
+   #we need to specify context since docker-compose file is not at the same
+   #level as the service folder.
+   context: ./../logger-service
+   dockerfile: ./../logger-service/logger-service.dockerfile
+
+  #Always restart if the container dies.
+  restart: always
+  ports:
+   - "8082:80"
+  deploy:
+   # Define 1 replica for now.
+   mode: replicated
+   replicas: 1
+ 
+ postgres:
+  image: 'postgres:14.2'
+  ports:
+   - "5432:5432"
+  restart: always
+  deploy:
+   mode: replicated
+   replicas: 1
+  environment:
+   POSTGRES_USER: postgres
+   POSTGRES_PASSWORD: password
+   POSTGRES_DB: users
+  # Adding a volumes so the data is persisted
+  volumes:
+   # let's map <local folder>:<container folder>
+   - ./db-data/postgres/:/var/lib/postgresql/data/
+
+ mongodb:
+  image: 'mongo:4.2.16-bionic'
+  ports:
+   - "27017:27017"
+  environment:
+   MONGO_INITDB_DATABASE: logs
+   MONGO_INITDB_ROOT_USERNAME: admin
+   MONGO_INITDB_ROOT_PASSWORD: password
+  volumes:
+   - ./db-data/mongo/:/data/db
