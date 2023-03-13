@@ -13,6 +13,10 @@
 			"path": "logger-service"
 		},
 		{
+			"name": "mail-service",
+			"path": "mail-service"
+		},
+		{
 			"name": "project",
 			"path": "project"
 		}
