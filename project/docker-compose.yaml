@@ -47,6 +47,29 @@ services:
    # Define 1 replica for now.
    mode: replicated
    replicas: 1
+
+ mailer-service:
+  build:
+   #we need to specify context since docker-compose file is not at the same
+   #level as the service folder.
+   context: ./../mail-service
+   dockerfile: ./../mail-service/mail-service.dockerfile
+
+  #Always restart if the container dies.
+  restart: always
+  deploy:
+   # Define 1 replica for now.
+   mode: replicated
+   replicas: 1
+  environment:
+   MAIL_DOMAIN: localhost
+   MAIL_HOST: mailhog
+   MAIL_PORT: 1025
+   MAIL_USERNAME: ""
+   MAIL_PASSWORD: ""
+   MAIL_ENCRYPTION: none
+   MAIL_NAME: "John Smith"
+   MAIL_ADDRESS: "johnsmith@example.com"
  
  postgres:
   image: 'postgres:14.2'
