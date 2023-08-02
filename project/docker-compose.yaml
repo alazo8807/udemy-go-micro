@@ -32,6 +32,14 @@ services:
    # NOTE: host has to match the name we gave to the postgres service's name define bellow 
    DSN: "host=postgres port=5432 user=postgres password=password dbname=users sslmode=disable timezone=UTC connect_timeout=5"
 
+ listener-service:
+  build:
+   context: ./../listener-service
+   dockerfile: ./../listener-service/listener-service.dockerfile
+  deploy:
+   mode: replicated
+   replicas: 1
+ 
  logger-service:
   build:
    #we need to specify context since docker-compose file is not at the same
